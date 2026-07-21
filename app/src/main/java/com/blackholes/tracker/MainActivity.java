@@ -1,4 +1,4 @@
-package com.blackhole.tracker;
+package com.blackholes.tracker;
 
 import android.Manifest;
 import android.app.Activity;
