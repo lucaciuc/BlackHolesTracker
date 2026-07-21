@@ -1,10 +1,10 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent">
 
     <!-- Camera feed sits in the absolute background -->
-    <com.blackhole.tracker.CameraPreview android:id="@+id/cameraPreview" android:layout_width="match_parent" android:layout_height="match_parent"/>
+    <com.blackholes.tracker.CameraPreview android:id="@+id/cameraPreview" android:layout_width="match_parent" android:layout_height="match_parent"/>
 
     <!-- Transparent AR canvas draws on top of the camera -->
-    <com.blackhole.tracker.SkyView android:id="@+id/skyView" android:layout_width="match_parent" android:layout_height="match_parent"/>
+    <com.blackholes.tracker.SkyView android:id="@+id/skyView" android:layout_width="match_parent" android:layout_height="match_parent"/>
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="top" android:orientation="vertical" android:background="#AA0B0B14" android:padding="16dp">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
