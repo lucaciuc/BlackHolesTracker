@@ -1,0 +1,14 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.blackhole.tracker">
+	<uses-sdk android:minSdkVersion="23" android:targetSdkVersion="34"/>
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+	<uses-permission android:name="android.permission.CAMERA"/> <!-- Add this exact line -->
+	<application android:allowBackup="true" android:label="@string/app_name" android:theme="@android:style/Theme.Material">
+		<activity android:name=".MainActivity" android:label="@string/app_name" android:exported="true">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN"/>
+				<category android:name="android.intent.category.LAUNCHER"/>
+			</intent-filter>
+		</activity>
+	</application>
+</manifest>
