@@ -29,6 +29,9 @@ jobs:
       - name: Build APK with Gradle
         run: ./gradlew assembleDebug
 
+      - name: Rename APK
+        run: mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/blackholestracker.apk
+
       - name: Update Latest Release
         uses: softprops/action-gh-release@v2
         with:
@@ -37,4 +40,4 @@ jobs:
           body: Automatically built from the latest commit.
           prerelease: true
           make_latest: true
-          files: app/build/outputs/apk/debug/app-debug.apk
+          files: app/build/outputs/apk/debug/blackholestracker.apk
