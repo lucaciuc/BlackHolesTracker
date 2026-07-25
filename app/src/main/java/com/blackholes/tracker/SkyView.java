@@ -26,10 +26,15 @@ import java.util.ArrayList;
  * accelerometer + magnetometer, with touch-drag as a manual override
  * that always works even without sensors.
  *
- * Device pitch/azimuth from SensorManager.getOrientation are used as-is;
- * if auto-rotation feels inverted on a real device, flip the sign on
- * devicePitchDeg (or deviceAzimuthDeg) below. Touch-drag is independent
- * of that and is unaffected either way.
+ * Device azimuth/altitude/twist are read directly off the rotation matrix
+ * (see onSensorChanged) rather than via SensorManager.getOrientation():
+ * getOrientation()'s pitch/roll are Euler angles that assume the phone is
+ * lying flat like a tabletop compass, and go through gimbal lock exactly
+ * when the phone is held upright to point at the sky -- which is this
+ * app's entire use case. If auto-rotation still feels inverted on a real
+ * device, flip the sign where deviceAzimuthDeg/devicePitchDeg/deviceRollDeg
+ * are assigned below. Touch-drag is independent of that and is unaffected
+ * either way.
  */
 public class SkyView extends View implements SensorEventListener {
 
@@ -45,7 +50,6 @@ public class SkyView extends View implements SensorEventListener {
     private boolean hasGeomagnetic = false;
 
     private final float[] rotationMatrix = new float[9];
-    private final float[] orientationValues = new float[3];
 
     private float deviceAzimuthDeg = 0f;
     private float devicePitchDeg = 0f;
@@ -163,24 +167,33 @@ public class SkyView extends View implements SensorEventListener {
 
         if (hasGravity && hasGeomagnetic
 		&& SensorManager.getRotationMatrix(rotationMatrix, null, gravityData, geomagneticData)) {
-            SensorManager.getOrientation(rotationMatrix, orientationValues);
 
-            float az = (float) Math.toDegrees(orientationValues[0]);
-            float pitch = (float) Math.toDegrees(orientationValues[1]);
-            float roll = (float) Math.toDegrees(orientationValues[2]);
+            // rotationMatrix (row-major 3x3) maps device-frame vectors to
+            // world-frame East/North/Up vectors. Its 3rd column (indices
+            // 2, 5, 8) is the device's Z axis -- out of the screen, toward
+            // the user -- expressed in East/North/Up. The back camera faces
+            // the opposite way (-Z), so that's where it's pointing:
+            float camEast = -rotationMatrix[2];
+            float camNorth = -rotationMatrix[5];
+            float camUp = -rotationMatrix[8];
 
-            // Fix the "zenith flip" when pointing the phone past straight up
-            if (Math.abs(roll) > 90) {
-			az += 180f;
-                pitch = pitch > 0 ? 180f - pitch : -180f - pitch;
-				}
-
+            float az = (float) Math.toDegrees(Math.atan2(camEast, camNorth));
             if (az < 0) az += 360f;
-            deviceAzimuthDeg = az % 360f;
-            devicePitchDeg = pitch;
-            deviceRollDeg = roll; 
-			}
-		}
+            float altitude = (float) Math.toDegrees(Math.asin(clamp(camUp, -1f, 1f)));
+
+            // Twist of the phone about its own pointing axis (0 = held
+            // upright), from the device X/Y axes' own Up components. Doesn't
+            // feed into az/altitude above, only into the on-screen counter-
+            // rotation below, so a sign mistake here can't reintroduce the
+            // horizon bug -- it would only make the overlay spin the wrong
+            // way when the phone twists, which is easy to spot and flip.
+            float twist = (float) Math.toDegrees(Math.atan2(rotationMatrix[6], rotationMatrix[7]));
+
+            deviceAzimuthDeg = az;
+            devicePitchDeg = altitude;
+            deviceRollDeg = -twist;
+        }
+    }
 	
 	
 
@@ -321,23 +334,35 @@ public class SkyView extends View implements SensorEventListener {
             float hintY = clamp(cy - deltaAlt * pxPerDeg, 80f, canvas.getHeight() - 80f);
             float hintX = isRight ? canvas.getWidth() - 50f : 50f;
 
+            // Point the arrow at the target's true 2D direction (both axes),
+            // not just left/right: on screen, +deltaAz is to the right and
+            // +deltaAlt is upward (screen Y grows downward, hence -deltaAlt).
+            float angleDeg = (float) Math.toDegrees(Math.atan2(-deltaAlt, deltaAz));
+
             Path arrow = new Path();
-            if (isRight) {
-                arrow.moveTo(hintX + 14f, hintY);
-                arrow.lineTo(hintX - 10f, hintY - 14f);
-                arrow.lineTo(hintX - 10f, hintY + 14f);
-            } else {
-                arrow.moveTo(hintX - 14f, hintY);
-                arrow.lineTo(hintX + 10f, hintY - 14f);
-                arrow.lineTo(hintX + 10f, hintY + 14f);
-            }
+            arrow.moveTo(14f, 0f);
+            arrow.lineTo(-10f, -14f);
+            arrow.lineTo(-10f, 14f);
             arrow.close();
+
+            canvas.save();
+            canvas.translate(hintX, hintY);
+            canvas.rotate(angleDeg);
             edgePaint.setAlpha((int) (150 + 100 * pulse));
             canvas.drawPath(arrow, edgePaint);
+            canvas.restore();
 
-            float angularDistance = (float) Math.hypot(deltaAz, deltaAlt);
+            // Explicit degrees on each axis: how far to turn left/right AND
+            // how far to tilt up/down, instead of one combined distance.
+            String azHint = Math.round(Math.abs(deltaAz)) + "\u00B0" + (deltaAz >= 0 ? "R" : "L");
+            String altHint = Math.round(Math.abs(deltaAlt)) + "\u00B0" + (deltaAlt >= 0 ? "U" : "D");
             tickTextPaint.setAlpha(255);
-            canvas.drawText(Math.round(angularDistance) + "°", hintX, hintY + 46f, tickTextPaint);
+            // This string is longer than the old single-number readout, so
+            // anchor it away from the screen edge instead of centering it
+            // on hintX (which would run part of it off-screen).
+            tickTextPaint.setTextAlign(isRight ? Paint.Align.RIGHT : Paint.Align.LEFT);
+            canvas.drawText(azHint + "   " + altHint, hintX, hintY + 46f, tickTextPaint);
+            tickTextPaint.setTextAlign(Paint.Align.CENTER); // restore for drawHorizon's N/E/S/W labels
         }
     }
 }
