@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 @SuppressWarnings("deprecation")
 public class MainActivity extends Activity implements LocationListener {
@@ -33,23 +34,30 @@ public class MainActivity extends Activity implements LocationListener {
         public double raDeg;
         public double decDeg;
         public String distanceStr;
-        public BlackHole(String name, double raDeg, double decDeg, String distanceStr) {
+        public double distanceLy;
+        public BlackHole(String name, double raDeg, double decDeg, String distanceStr, double distanceLy) {
             this.name = name;
             this.raDeg = raDeg;
             this.decDeg = decDeg;
             this.distanceStr = distanceStr;
+            this.distanceLy = distanceLy;
         }
         @Override
         public String toString() { return name; }
     }
 
     private final List<BlackHole> blackHoles = Arrays.asList(
-        new BlackHole("Sagittarius A*", 266.41684, -29.00781, "~26,670 ly"),
-        new BlackHole("Cygnus X-1", 299.5903, 35.2016, "~7,200 ly"),
-        new BlackHole("V616 Monocerotis", 95.6854, -0.3457, "~3,300 ly"),
-        new BlackHole("GRO J1655-40", 253.5005, -39.8458, "~11,000 ly"),
-        new BlackHole("M87*", 187.7059, 12.3911, "~53.5 Mly"),
-        new BlackHole("TON 618", 187.10375, 31.47714, "~18.2 Gly")
+        new BlackHole("Sagittarius A*", 266.41684, -29.00781, "~26,670 ly", 26_670),
+        new BlackHole("Cygnus X-1", 299.5903, 35.2016, "~7,200 ly", 7_200),
+        new BlackHole("V616 Monocerotis (A0620-00)", 95.6854, -0.3457, "~3,300 ly", 3_300),
+        new BlackHole("GRO J1655-40", 253.5005, -39.8458, "~11,000 ly", 11_000),
+        new BlackHole("M87*", 187.7059, 12.3911, "~53.5 Mly", 53_500_000),
+        new BlackHole("TON 618", 187.10375, 31.47714, "~18.2 Gly", 18_200_000_000.0),
+        new BlackHole("Gaia BH1", 262.17124, -0.58098, "~1,560 ly", 1_560),
+        new BlackHole("Gaia BH3", 294.82796, 14.93167, "~1,936 ly", 1_936),
+        new BlackHole("Gaia BH2", 207.56978, -59.23898, "~3,800 ly", 3_800),
+        new BlackHole("GRS 1124-683 (Nova Muscae 1991)", 171.61081, -68.67580, "~16,100 ly", 16_100),
+        new BlackHole("Phoenix A*", 356.17042, -42.69833, "~8.6 Gly", 8_600_000_000.0)
     );
     private int selectedTargetIndex = 0;
 
@@ -102,6 +110,8 @@ public class MainActivity extends Activity implements LocationListener {
         toggleShowAll = findViewById(R.id.toggleShowAll);
         skyView = findViewById(R.id.skyView);
         cameraPreview = findViewById(R.id.cameraPreview);
+
+        Collections.sort(blackHoles, (a, b) -> Double.compare(a.distanceLy, b.distanceLy));
 
         ArrayAdapter<BlackHole> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, blackHoles);
         spinnerBlackHole.setAdapter(adapter);
