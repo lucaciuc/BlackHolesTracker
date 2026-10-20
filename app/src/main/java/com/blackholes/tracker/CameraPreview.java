@@ -14,6 +14,8 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     private SurfaceHolder holder;
     private Camera camera;
+    private int contentWidth;
+    private int contentHeight;
 
     public CameraPreview(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -34,6 +36,34 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * Size of the camera frames as they appear on screen (i.e. after the
+     * display rotation), so the preview can keep their aspect ratio.
+     */
+    public void setContentSize(int width, int height) {
+        if (width != contentWidth || height != contentHeight) {
+            contentWidth = width;
+            contentHeight = height;
+            requestLayout();
+        }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        int height = MeasureSpec.getSize(heightMeasureSpec);
+        if (contentWidth <= 0 || contentHeight <= 0 || width <= 0 || height <= 0) {
+            setMeasuredDimension(width, height);
+            return;
+        }
+        // Scale the frames uniformly until they cover the whole screen instead
+        // of stretching them to fit; the parent centers this view
+        // (layout_gravity="center") and the overflow falls off the edges.
+        // A stretched preview doesn't line up with the AR overlay.
+        float scale = Math.max((float) width / contentWidth, (float) height / contentHeight);
+        setMeasuredDimension(Math.round(contentWidth * scale), Math.round(contentHeight * scale));
     }
 
     @Override

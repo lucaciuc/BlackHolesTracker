@@ -2,6 +2,46 @@
 <resources>
 
     <string name="app_name">Black Holes Tracker</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="sky_view_description">Augmented reality sky view. Drag to adjust, double-tap to reset, tap a marker to select it.</string>
+
+    <string name="show_all">Show all</string>
+    <string name="placeholder">--</string>
+    <string name="label_altitude">ALTITUDE</string>
+    <string name="label_azimuth">AZIMUTH</string>
+    <string name="label_distance">DISTANCE</string>
+    <string name="details_format">%1$s · %2$s</string>
+
+    <string name="status_acquiring">Acquiring location…</string>
+    <string name="status_location_permission">Location permission needed. Tap to allow</string>
+    <string name="status_location_off">Location is turned off. Tap to turn it on</string>
+    <string name="status_camera_permission">Camera off, showing the overlay only. Tap to allow</string>
+    <string name="status_camera_unavailable">Camera unavailable, showing the overlay only</string>
+    <string name="status_saved_location">Using your last saved location</string>
+    <string name="status_tracking">Tracking</string>
+
+    <string name="hint_calibrate">Compass is inaccurate: wave your phone in a figure-8</string>
+    <string name="hint_offset">View nudged %1$+.1f° az, %2$+.1f° alt. Double-tap to reset</string>
+    <string name="hint_no_sensors">No motion sensors: drag to look around</string>
+    <string name="hint_no_gyro">No gyroscope: pointing may be a little jumpy</string>
+
+    <string name="above_horizon">● Above horizon</string>
+    <string name="below_horizon">● Below horizon</string>
+    <string name="sets_in">Sets in %1$s (%2$s) · peaks at %3$.0f°</string>
+    <string name="rises_in">Rises in %1$s (%2$s) · peaks at %3$.0f°</string>
+    <string name="never_sets">Never sets from here · peaks at %1$.0f°</string>
+    <string name="never_rises">Never rises at your latitude</string>
+    <string name="rise_set_needs_location">Rise and set times need your location</string>
+    <string name="duration_under_a_minute">under a minute</string>
+    <string name="duration_minutes">%1$d min</string>
+    <string name="duration_hours_minutes">%1$dh %2$02dm</string>
+
+    <string name="location_saved">saved</string>
+    <string name="accuracy_m">±%1$d m</string>
+    <string name="accuracy_km">±%1$.1f km</string>
+    <string name="declination_format">declination %1$+.1f°</string>
+
+    <string name="marker_zenith">Zenith</string>
+    <string name="marker_below_horizon">below horizon</string>
+    <string name="marker_on_target">ON TARGET</string>
 
 </resources>
